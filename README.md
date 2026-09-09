@@ -26,3 +26,10 @@ Je vais opter pour un calcul de recommendations avec des poids pour faire ressor
 
 La décision du système hybride est justifié par le fait qu'une boutique avec un petit historique de ventes ou bien un produit encore peu vendu ne permettent pas d'identifier une recommandation.
 Dans ces cas, les recommandations basées sur les catégories et la popularité permettront de prendre le relais.
+
+
+# Références
+
+Le diagramme de base de données a été créé avec [drawdb.app](https://drawdb.app/)
+
+Le schéma des modules a été créé avec [Excalidraw](https://excalidraw.com/)
