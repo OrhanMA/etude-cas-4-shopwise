@@ -1,19 +1,15 @@
 package com.shopwise.app.dto.response;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-public class ProductResponse {
+public class CategoryResponse {
 
   private Long id;
   private String name;
-  private String sku;
-  private String description;
-  private BigDecimal price;
   private LocalDateTime createdAt;
   private LocalDateTime updatedAt;
 
-  public ProductResponse() {}
+  public CategoryResponse() {}
 
   public Long getId() {
     return id;
@@ -29,30 +25,6 @@ public class ProductResponse {
 
   public void setName(String name) {
     this.name = name;
-  }
-
-  public String getSku() {
-    return sku;
-  }
-
-  public void setSku(String sku) {
-    this.sku = sku;
-  }
-
-  public String getDescription() {
-    return description;
-  }
-
-  public void setDescription(String description) {
-    this.description = description;
-  }
-
-  public BigDecimal getPrice() {
-    return price;
-  }
-
-  public void setPrice(BigDecimal price) {
-    this.price = price;
   }
 
   public LocalDateTime getCreatedAt() {

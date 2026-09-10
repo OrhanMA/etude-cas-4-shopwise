@@ -1,106 +1,144 @@
 package com.shopwise.app.entity;
 
+import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-
+import java.util.HashSet;
+import java.util.Set;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "PRODUCTS")
 public class Product {
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
-	
-	@Column(nullable = false, length = 100)
-	private String name;
-	
-	@Column(length = 500)
-	private String description;
-	
-	@Column(nullable = false, precision = 10, scale = 2)
-	private BigDecimal price;
-	
-	@CreationTimestamp
-    private LocalDateTime createdAt;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-    @UpdateTimestamp
-    private LocalDateTime updatedAt;
+  @Column(nullable = false, length = 255, unique = true)
+  private String name;
 
-	public Long getId() {
-		return id;
-	}
+  @Column(nullable = false, length = 100, unique = true)
+  private String sku;
 
-	public void setId(Long id) {
-		this.id = id;
-	}
+  @Column(length = 500)
+  private String description;
 
-	public String getName() {
-		return name;
-	}
+  @Column(nullable = false, precision = 10, scale = 2)
+  private BigDecimal price;
 
-	public void setName(String name) {
-		this.name = name;
-	}
+  @ManyToMany
+  @JoinTable(
+      name = "PRODUCT_CATEGORIES",
+      joinColumns = @JoinColumn(name = "PRODUCT_ID"),
+      inverseJoinColumns = @JoinColumn(name = "CATEGORY_ID"))
+  private Set<Category> categories = new HashSet<>();
 
-	public String getDescription() {
-		return description;
-	}
+  @CreationTimestamp private LocalDateTime createdAt;
 
-	public void setDescription(String description) {
-		this.description = description;
-	}
+  @UpdateTimestamp private LocalDateTime updatedAt;
 
-	public BigDecimal getPrice() {
-		return price;
-	}
+  public Long getId() {
+    return id;
+  }
 
-	public void setPrice(BigDecimal price) {
-		this.price = price;
-	}
+  public void setId(Long id) {
+    this.id = id;
+  }
 
-	public LocalDateTime getCreatedAt() {
-		return createdAt;
-	}
+  public String getName() {
+    return name;
+  }
 
-	public void setCreatedAt(LocalDateTime createdAt) {
-		this.createdAt = createdAt;
-	}
+  public void setName(String name) {
+    this.name = name;
+  }
 
-	public LocalDateTime getUpdatedAt() {
-		return updatedAt;
-	}
+  public String getSku() {
+    return sku;
+  }
 
-	public void setUpdatedAt(LocalDateTime updatedAt) {
-		this.updatedAt = updatedAt;
-	}
-    
-    public Product() {	}
+  public void setSku(String sku) {
+    this.sku = sku;
+  }
 
-	public Product(Long id, String name, String description, BigDecimal price, LocalDateTime createdAt,
-			LocalDateTime updatedAt) {
-		super();
-		this.id = id;
-		this.name = name;
-		this.description = description;
-		this.price = price;
-		this.createdAt = createdAt;
-		this.updatedAt = updatedAt;
-	}
+  public String getDescription() {
+    return description;
+  }
 
-	@Override
-	public String toString() {
-		return "Product [id=" + id + ", name=" + name + ", description=" + description + ", price=" + price
-				+ ", createdAt=" + createdAt + ", updatedAt=" + updatedAt + "]";
-	}
-   
+  public void setDescription(String description) {
+    this.description = description;
+  }
+
+  public BigDecimal getPrice() {
+    return price;
+  }
+
+  public void setPrice(BigDecimal price) {
+    this.price = price;
+  }
+
+  public Set<Category> getCategories() {
+    return categories;
+  }
+
+  public void setCategories(Set<Category> categories) {
+    this.categories = categories;
+  }
+
+  public LocalDateTime getCreatedAt() {
+    return createdAt;
+  }
+
+  public void setCreatedAt(LocalDateTime createdAt) {
+    this.createdAt = createdAt;
+  }
+
+  public LocalDateTime getUpdatedAt() {
+    return updatedAt;
+  }
+
+  public void setUpdatedAt(LocalDateTime updatedAt) {
+    this.updatedAt = updatedAt;
+  }
+
+  public Product() {}
+
+  public Product(
+      Long id,
+      String name,
+      String sku,
+      String description,
+      BigDecimal price,
+      LocalDateTime createdAt,
+      LocalDateTime updatedAt) {
+    super();
+    this.id = id;
+    this.name = name;
+    this.sku = sku;
+    this.description = description;
+    this.price = price;
+    this.createdAt = createdAt;
+    this.updatedAt = updatedAt;
+  }
+
+  @Override
+  public String toString() {
+    return "Product [id="
+        + id
+        + ", name="
+        + name
+        + ", sku="
+        + sku
+        + ", description="
+        + description
+        + ", price="
+        + price
+        + ", createdAt="
+        + createdAt
+        + ", updatedAt="
+        + updatedAt
+        + "]";
+  }
 }
