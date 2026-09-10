@@ -8,6 +8,7 @@ import com.shopwise.app.mapper.UserMapper;
 import com.shopwise.app.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import java.util.List;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -15,14 +16,19 @@ import org.springframework.stereotype.Service;
 public class UserServiceImpl implements UserService {
   private final UserRepository repository;
   private final UserMapper mapper;
+  private final PasswordEncoder passwordEncoder;
 
-  public UserServiceImpl(UserRepository repository, UserMapper mapper) {
+  public UserServiceImpl(
+      UserRepository repository, UserMapper mapper, PasswordEncoder passwordEncoder) {
     this.repository = repository;
     this.mapper = mapper;
+    this.passwordEncoder = passwordEncoder;
   }
 
   public UserResponse create(CreateUserRequest request) {
-    return mapper.toResponse(repository.save(mapper.toEntity(request)));
+    User user = mapper.toEntity(request);
+    user.setPasswordHash(passwordEncoder.encode(request.getPassword()));
+    return mapper.toResponse(repository.save(user));
   }
 
   public UserResponse getById(Long id) {
@@ -38,6 +44,7 @@ public class UserServiceImpl implements UserService {
     User entity =
         repository.findById(id).orElseThrow(() -> new NotFoundException("User not found"));
     mapper.updateEntity(request, entity);
+    entity.setPasswordHash(passwordEncoder.encode(request.getPassword()));
     return mapper.toResponse(repository.save(entity));
   }
 

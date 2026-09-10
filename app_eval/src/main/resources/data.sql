@@ -1,7 +1,7 @@
 -- Seed H2 de demonstration. Dates fixes pour des tests reproductibles.
 INSERT INTO users (id, first_name, last_name, email, password_hash, role, created_at, updated_at) VALUES
- (1, 'Marie', 'Dupont', 'marie.dupont@shopwise.test', '$2a$10$demoHashForMarie', 'ADMIN', TIMESTAMP '2026-01-10 09:00:00', TIMESTAMP '2026-01-10 09:00:00'),
- (2, 'Lucas', 'Martin', 'lucas.martin@shopwise.test', '$2a$10$demoHashForLucas', 'USER', TIMESTAMP '2026-01-11 10:00:00', TIMESTAMP '2026-01-11 10:00:00');
+ (1, 'Marie', 'Dupont', 'marie.dupont@shopwise.test', '$2a$10$GRLdNijSQMUvl/au9ofL.eDwmoohzzS7.rmNSJZ.0FxO/BTk76klW', 'ADMIN', TIMESTAMP '2026-01-10 09:00:00', TIMESTAMP '2026-01-10 09:00:00'),
+ (2, 'Lucas', 'Martin', 'lucas.martin@shopwise.test', '$2a$10$GRLdNijSQMUvl/au9ofL.eDwmoohzzS7.rmNSJZ.0FxO/BTk76klW', 'USER', TIMESTAMP '2026-01-11 10:00:00', TIMESTAMP '2026-01-11 10:00:00');
 INSERT INTO categories (id, name, created_at, updated_at) VALUES
  (1, 'Epicerie', TIMESTAMP '2026-01-12 09:00:00', TIMESTAMP '2026-01-12 09:00:00'),
  (2, 'Boissons', TIMESTAMP '2026-01-12 09:05:00', TIMESTAMP '2026-01-12 09:05:00'),
