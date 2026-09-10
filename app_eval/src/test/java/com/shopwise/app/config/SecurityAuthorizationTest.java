@@ -19,8 +19,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.web.servlet.MockMvc;
 
 @WebMvcTest(controllers = {ProductController.class, SaleController.class})
 @Import(SecurityConfig.class)
@@ -31,6 +32,8 @@ class SecurityAuthorizationTest {
   @MockitoBean private ProductService productService;
 
   @MockitoBean private SaleService saleService;
+
+  @MockitoBean private UserDetailsService userDetailsService;
 
   @BeforeEach
   void mockSuccessfulAdminResponses() {
@@ -47,7 +50,8 @@ class SecurityAuthorizationTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(productPayload()))
         .andExpect(status().isForbidden())
-        .andExpect(content().json("{\"status\":403,\"message\":\"Access denied: ADMIN role required\"}"));
+        .andExpect(
+            content().json("{\"status\":403,\"message\":\"Access denied: ADMIN role required\"}"));
   }
 
   @Test
@@ -59,7 +63,8 @@ class SecurityAuthorizationTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(salePayload()))
         .andExpect(status().isForbidden())
-        .andExpect(content().json("{\"status\":403,\"message\":\"Access denied: ADMIN role required\"}"));
+        .andExpect(
+            content().json("{\"status\":403,\"message\":\"Access denied: ADMIN role required\"}"));
   }
 
   @Test
@@ -75,20 +80,20 @@ class SecurityAuthorizationTest {
 
   private String productPayload() {
     return """
-        {
-          "name": "Produit securise",
-          "sku": "SECURE-001",
-          "price": 10.00
-        }
-        """;
+    {
+      "name": "Produit securise",
+      "sku": "SECURE-001",
+      "price": 10.00
+    }
+    """;
   }
 
   private String salePayload() {
     return """
-        {
-          "userId": 1,
-          "items": [{"productId": 1, "quantity": 1}]
-        }
-        """;
+    {
+      "userId": 1,
+      "items": [{"productId": 1, "quantity": 1}]
+    }
+    """;
   }
 }
