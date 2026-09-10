@@ -12,6 +12,12 @@ La responsabilité des modules est décrite dans `markdown-files/Responsabilité
 
 Justification dans `markdown-files/Attributs-qualite.md`
 
+## Sécurité et normalisation des erreurs
+
+Les justifications des choix réalisés pour les US 4 à 6 — autorisation par rôle,
+authentification JWT et normalisation des réponses d’erreur — sont détaillées dans
+[`markdown-files/Choix-securite-auth-et-normalisation.md`](markdown-files/Choix-securite-auth-et-normalisation.md).
+
 ## Système de recommendation 
 
 J'ai opté pour un système hybride qui va utiliser 3 axes :
