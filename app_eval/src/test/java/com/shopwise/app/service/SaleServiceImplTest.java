@@ -62,4 +62,14 @@ class SaleServiceImplTest {
         com.shopwise.app.exception.NotFoundException.class, () -> service.create(request));
     verifyNoInteractions(sales);
   }
+
+  @Test
+  void getAll_requests_sales_from_newest_to_oldest() {
+    when(sales.findAllByOrderByCreatedAtDesc()).thenReturn(List.of());
+
+    assertThat(service.getAll()).isEmpty();
+
+    verify(sales).findAllByOrderByCreatedAtDesc();
+    verify(sales, never()).findAll();
+  }
 }
