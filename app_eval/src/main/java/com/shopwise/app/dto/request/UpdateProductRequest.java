@@ -1,49 +1,57 @@
 package com.shopwise.app.dto.request;
 
-import java.math.BigDecimal;
-
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
+import java.math.BigDecimal;
 
 public class UpdateProductRequest {
 
-	@NotBlank @Size(max = 100)
-	private String name;
-	
-	@Size(max = 500)
-	private String description;
+  @NotBlank
+  @Size(max = 100)
+  private String name;
 
-	@NotNull
-	@Positive
-	private BigDecimal price;
+  @NotBlank
+  @Size(max = 100)
+  private String sku;
 
-	public UpdateProductRequest() {
-	}
+  @Size(max = 500)
+  private String description;
 
-	public String getName() {
-		return name;
-	}
+  @NotNull @Positive private BigDecimal price;
 
-	public void setName(String name) {
-		this.name = name;
-	}
+  public UpdateProductRequest() {}
 
-	public String getDescription() {
-		return description;
-	}
+  public String getName() {
+    return name;
+  }
 
-	public void setDescription(String description) {
-		this.description = description;
-	}
+  public void setName(String name) {
+    this.name = name;
+  }
 
-	public BigDecimal getPrice() {
-		return price;
-	}
+  public String getSku() {
+    return sku;
+  }
 
-	public void setPrice(BigDecimal price) {
-		this.price = price;
-	}
+  public void setSku(String sku) {
+    this.sku = sku;
+  }
 
+  public String getDescription() {
+    return description;
+  }
+
+  public void setDescription(String description) {
+    this.description = description;
+  }
+
+  public BigDecimal getPrice() {
+    return price;
+  }
+
+  public void setPrice(BigDecimal price) {
+    this.price = price;
+  }
 }

@@ -1,9 +1,5 @@
 package com.shopwise.app.service;
 
-import java.util.List;
-
-import org.springframework.stereotype.Service;
-
 import com.shopwise.app.dto.request.CreateProductRequest;
 import com.shopwise.app.dto.request.UpdateProductRequest;
 import com.shopwise.app.dto.response.ProductResponse;
@@ -11,54 +7,58 @@ import com.shopwise.app.entity.Product;
 import com.shopwise.app.exception.NotFoundException;
 import com.shopwise.app.mapper.ProductMapper;
 import com.shopwise.app.repository.ProductRepository;
-
 import jakarta.transaction.Transactional;
+import java.util.List;
+import org.springframework.stereotype.Service;
 
 @Service
 @Transactional
 public class ProductServiceImpl implements ProductService {
 
-	private final ProductRepository productRepository;
-	private final ProductMapper productMapper;
-	
-	public ProductServiceImpl(ProductRepository productRepository, ProductMapper productMapper) {
-		super();
-		this.productRepository = productRepository;
-		this.productMapper = productMapper;
-	}
-	
-    public ProductResponse create(CreateProductRequest request) {
-        Product product = productMapper.toEntity(request);
-        Product saved = productRepository.save(product);
-        return productMapper.toResponse(saved);
-    }
+  private final ProductRepository productRepository;
+  private final ProductMapper productMapper;
 
-    public ProductResponse getById(Long id) {
-        Product product = productRepository.findById(id)
+  public ProductServiceImpl(ProductRepository productRepository, ProductMapper productMapper) {
+    super();
+    this.productRepository = productRepository;
+    this.productMapper = productMapper;
+  }
+
+  public ProductResponse create(CreateProductRequest request) {
+    Product product = productMapper.toEntity(request);
+    Product saved = productRepository.save(product);
+    return productMapper.toResponse(saved);
+  }
+
+  public ProductResponse getById(Long id) {
+    Product product =
+        productRepository
+            .findById(id)
             .orElseThrow(() -> new NotFoundException("Product not found"));
-        return productMapper.toResponse(product);
-    }
+    return productMapper.toResponse(product);
+  }
 
-	public List<ProductResponse> getAll() {
-	    List<Product> products = productRepository.findAll();
-	    return productMapper.toResponseList(products);
-	}
+  public List<ProductResponse> getAll() {
+    List<Product> products = productRepository.findAll();
+    return productMapper.toResponseList(products);
+  }
 
-    public ProductResponse update(Long id, UpdateProductRequest request) {
-        Product product = productRepository.findById(id)
+  public ProductResponse update(Long id, UpdateProductRequest request) {
+    Product product =
+        productRepository
+            .findById(id)
             .orElseThrow(() -> new NotFoundException("Product not found"));
 
-        productMapper.updateEntity(request, product);
+    productMapper.updateEntity(request, product);
 
-        Product updated = productRepository.save(product);
-        return productMapper.toResponse(updated);
-    }
+    Product updated = productRepository.save(product);
+    return productMapper.toResponse(updated);
+  }
 
-    public void delete(Long id) {
-        if (!productRepository.existsById(id)) {
-            throw new NotFoundException("Product not found");
-        }
-        productRepository.deleteById(id);
+  public void delete(Long id) {
+    if (!productRepository.existsById(id)) {
+      throw new NotFoundException("Product not found");
     }
-	
+    productRepository.deleteById(id);
+  }
 }
