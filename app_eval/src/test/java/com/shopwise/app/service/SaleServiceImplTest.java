@@ -72,4 +72,15 @@ class SaleServiceImplTest {
     verify(sales).findAllByOrderByCreatedAtDesc();
     verify(sales, never()).findAll();
   }
+
+  @Test
+  void getById_throws_clear_not_found_exception_for_unknown_sale() {
+    when(sales.findById(404L)).thenReturn(Optional.empty());
+
+    var exception =
+        org.junit.jupiter.api.Assertions.assertThrows(
+            com.shopwise.app.exception.NotFoundException.class, () -> service.getById(404L));
+
+    assertThat(exception).hasMessage("Sale not found");
+  }
 }
