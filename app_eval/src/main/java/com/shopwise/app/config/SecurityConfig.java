@@ -40,8 +40,20 @@ public class SecurityConfig {
   }
 
   @Bean
-  JwtDecoder jwtDecoder(SecretKey jwtSecretKey) {
-    return NimbusJwtDecoder.withSecretKey(jwtSecretKey).macAlgorithm(MacAlgorithm.HS256).build();
+  JwtDecoder jwtDecoder(SecretKey jwtSecretKey, com.shopwise.app.repository.UserRepository users) {
+    var decoder = NimbusJwtDecoder.withSecretKey(jwtSecretKey).macAlgorithm(MacAlgorithm.HS256).build();
+    org.springframework.security.oauth2.core.OAuth2TokenValidator<org.springframework.security.oauth2.jwt.Jwt> account = jwt -> {
+      boolean valid = jwt.getSubject() != null && users.findByEmail(jwt.getSubject())
+          .filter(user -> ("ROLE_" + user.getRole()).equals(jwt.getClaimAsString("role")))
+          .filter(user -> user.getUpdatedAt().toString().equals(jwt.getClaimAsString("accountVersion")))
+          .isPresent();
+      return valid ? org.springframework.security.oauth2.core.OAuth2TokenValidatorResult.success()
+          : org.springframework.security.oauth2.core.OAuth2TokenValidatorResult.failure(
+              new org.springframework.security.oauth2.core.OAuth2Error("invalid_token", "Account changed or unavailable", null));
+    };
+    decoder.setJwtValidator(new org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator<>(
+        org.springframework.security.oauth2.jwt.JwtValidators.createDefault(), account));
+    return decoder;
   }
 
   @Bean
@@ -67,7 +79,15 @@ public class SecurityConfig {
                 authorize
                     .requestMatchers("/api/auth/login")
                     .permitAll()
-                    // L'authentification de ces utilisateurs sera implementee dans l'US 5.
+                    .requestMatchers("/api/users/**")
+                    .hasRole("ADMIN")
+                    .requestMatchers(HttpMethod.POST, "/api/categories/**")
+                    .hasRole("ADMIN")
+                    .requestMatchers(HttpMethod.PUT, "/api/categories/**")
+                    .hasRole("ADMIN")
+                    .requestMatchers(HttpMethod.DELETE, "/api/categories/**")
+                    .hasRole("ADMIN")
+                    // Les écritures sur les produits et les ventes sont réservées aux administrateurs.
                     .requestMatchers(HttpMethod.POST, "/api/products/**")
                     .hasRole("ADMIN")
                     .requestMatchers(HttpMethod.PUT, "/api/products/**")
@@ -104,7 +124,11 @@ public class SecurityConfig {
     authorities.setAuthorityPrefix("");
     var authentication = new org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter();
     authentication.setJwtGrantedAuthoritiesConverter(authorities);
-    http.oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> jwt.jwtAuthenticationConverter(authentication)));
+    http.oauth2ResourceServer(oauth2 -> oauth2
+        .jwt(jwt -> jwt.jwtAuthenticationConverter(authentication))
+        .authenticationEntryPoint((request, response, exception) ->
+            writeJsonError(response, HttpServletResponse.SC_UNAUTHORIZED,
+                "Authentication required")));
 
     return http.build();
   }

@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="fr"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Product.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">app</a> &gt; <a href="index.source.html" class="el_package">com.shopwise.app.entity</a> &gt; <span class="el_source">Product.java</span></div><h1>Product.java</h1><pre class="source lang-java linenums">package com.shopwise.app.entity;
+
+import jakarta.persistence.*;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
+@Entity
+@Table(name = &quot;PRODUCTS&quot;)
+public class Product {
+
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
+
+  @Column(nullable = false, length = 255, unique = true)
+  private String name;
+
+  @Column(nullable = false, length = 100, unique = true)
+  private String sku;
+
+  @Column(length = 500)
+  private String description;
+
+  @Column(nullable = false, precision = 10, scale = 2)
+  private BigDecimal price;
+
+<span class="pc" id="L31">  @ManyToMany</span>
+  @JoinTable(
+      name = &quot;PRODUCT_CATEGORIES&quot;,
+      joinColumns = @JoinColumn(name = &quot;PRODUCT_ID&quot;),
+      inverseJoinColumns = @JoinColumn(name = &quot;CATEGORY_ID&quot;))
+  private Set&lt;Category&gt; categories = new HashSet&lt;&gt;();
+
+  @CreationTimestamp private LocalDateTime createdAt;
+
+  @UpdateTimestamp private LocalDateTime updatedAt;
+
+  public Long getId() {
+<span class="fc" id="L43">    return id;</span>
+  }
+
+  public void setId(Long id) {
+<span class="fc" id="L47">    this.id = id;</span>
+<span class="fc" id="L48">  }</span>
+
+  public String getName() {
+<span class="fc" id="L51">    return name;</span>
+  }
+
+  public void setName(String name) {
+<span class="fc" id="L55">    this.name = name;</span>
+<span class="fc" id="L56">  }</span>
+
+  public String getSku() {
+<span class="fc" id="L59">    return sku;</span>
+  }
+
+  public void setSku(String sku) {
+<span class="fc" id="L63">    this.sku = sku;</span>
+<span class="fc" id="L64">  }</span>
+
+  public String getDescription() {
+<span class="fc" id="L67">    return description;</span>
+  }
+
+  public void setDescription(String description) {
+<span class="fc" id="L71">    this.description = description;</span>
+<span class="fc" id="L72">  }</span>
+
+  public BigDecimal getPrice() {
+<span class="fc" id="L75">    return price;</span>
+  }
+
+  public void setPrice(BigDecimal price) {
+<span class="fc" id="L79">    this.price = price;</span>
+<span class="fc" id="L80">  }</span>
+
+  public Set&lt;Category&gt; getCategories() {
+<span class="fc" id="L83">    return categories;</span>
+  }
+
+  public void setCategories(Set&lt;Category&gt; categories) {
+<span class="nc" id="L87">    this.categories = categories;</span>
+<span class="nc" id="L88">  }</span>
+
+  public LocalDateTime getCreatedAt() {
+<span class="fc" id="L91">    return createdAt;</span>
+  }
+
+  public void setCreatedAt(LocalDateTime createdAt) {
+<span class="nc" id="L95">    this.createdAt = createdAt;</span>
+<span class="nc" id="L96">  }</span>
+
+  public LocalDateTime getUpdatedAt() {
+<span class="fc" id="L99">    return updatedAt;</span>
+  }
+
+  public void setUpdatedAt(LocalDateTime updatedAt) {
+<span class="nc" id="L103">    this.updatedAt = updatedAt;</span>
+<span class="nc" id="L104">  }</span>
+
+<span class="fc" id="L106">  public Product() {}</span>
+
+  public Product(
+      Long id,
+      String name,
+      String sku,
+      String description,
+      BigDecimal price,
+      LocalDateTime createdAt,
+      LocalDateTime updatedAt) {
+<span class="nc" id="L116">    super();</span>
+<span class="nc" id="L117">    this.id = id;</span>
+<span class="nc" id="L118">    this.name = name;</span>
+<span class="nc" id="L119">    this.sku = sku;</span>
+<span class="nc" id="L120">    this.description = description;</span>
+<span class="nc" id="L121">    this.price = price;</span>
+<span class="nc" id="L122">    this.createdAt = createdAt;</span>
+<span class="nc" id="L123">    this.updatedAt = updatedAt;</span>
+<span class="nc" id="L124">  }</span>
+
+  @Override
+  public String toString() {
+<span class="nc" id="L128">    return &quot;Product [id=&quot;</span>
+        + id
+        + &quot;, name=&quot;
+        + name
+        + &quot;, sku=&quot;
+        + sku
+        + &quot;, description=&quot;
+        + description
+        + &quot;, price=&quot;
+        + price
+        + &quot;, createdAt=&quot;
+        + createdAt
+        + &quot;, updatedAt=&quot;
+        + updatedAt
+        + &quot;]&quot;;
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

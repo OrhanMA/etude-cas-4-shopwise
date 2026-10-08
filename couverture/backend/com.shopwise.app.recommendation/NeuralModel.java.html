@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="fr"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>NeuralModel.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">app</a> &gt; <a href="index.source.html" class="el_package">com.shopwise.app.recommendation</a> &gt; <span class="el_source">NeuralModel.java</span></div><h1>NeuralModel.java</h1><pre class="source lang-java linenums">package com.shopwise.app.recommendation;
+
+import java.util.*;
+
+/** Small multi-label network: masked basket -&gt; tanh hidden layer -&gt; sigmoid products. */
+public final class NeuralModel {
+  private final int size;
+  private final double[][] input, output;
+  private final double[] hiddenBias, outputBias;
+
+<span class="fc" id="L11">  public NeuralModel(int size) {</span>
+<span class="fc" id="L12">    this.size = size;</span>
+<span class="fc" id="L13">    int width = Math.min(16, Math.max(4, size));</span>
+<span class="fc" id="L14">    input = new double[width][size];</span>
+<span class="fc" id="L15">    output = new double[size][width];</span>
+<span class="fc" id="L16">    hiddenBias = new double[width];</span>
+<span class="fc" id="L17">    outputBias = new double[size];</span>
+<span class="fc" id="L18">    Random random = new Random(42);</span>
+<span class="fc bfc" id="L19" title="All 4 branches covered.">    for (double[] row : input) for (int i = 0; i &lt; row.length; i++) row[i] = random.nextGaussian() * .1;</span>
+<span class="fc bfc" id="L20" title="All 4 branches covered.">    for (double[] row : output) for (int i = 0; i &lt; row.length; i++) row[i] = random.nextGaussian() * .1;</span>
+<span class="fc" id="L21">  }</span>
+
+  private double[] hidden(double[] x) {
+<span class="fc" id="L24">    double[] h = hiddenBias.clone();</span>
+<span class="fc bfc" id="L25" title="All 2 branches covered.">    for (int j = 0; j &lt; h.length; j++) {</span>
+<span class="fc bfc" id="L26" title="All 2 branches covered.">      for (int i = 0; i &lt; size; i++) h[j] += input[j][i] * x[i];</span>
+<span class="fc" id="L27">      h[j] = Math.tanh(h[j]);</span>
+    }
+<span class="fc" id="L29">    return h;</span>
+  }
+
+  public double[] predict(double[] x) {
+<span class="fc" id="L33">    double[] h = hidden(x), y = outputBias.clone();</span>
+<span class="fc bfc" id="L34" title="All 2 branches covered.">    for (int i = 0; i &lt; size; i++) {</span>
+<span class="fc bfc" id="L35" title="All 2 branches covered.">      for (int j = 0; j &lt; h.length; j++) y[i] += output[i][j] * h[j];</span>
+<span class="fc" id="L36">      y[i] = 1 / (1 + Math.exp(-Math.max(-30, Math.min(30, y[i]))));</span>
+    }
+<span class="fc" id="L38">    return y;</span>
+  }
+
+  /** One example per held-out product. Targets identify only the masked product. */
+  public int train(List&lt;Set&lt;Integer&gt;&gt; baskets, int epochs) {
+<span class="fc bfc" id="L43" title="All 2 branches covered.">    int examples = baskets.stream().filter(b -&gt; b.size() &gt;= 2).mapToInt(Set::size).sum();</span>
+<span class="fc bfc" id="L44" title="All 4 branches covered.">    for (int epoch = 0; epoch &lt; epochs; epoch++) for (Set&lt;Integer&gt; basket : baskets) {</span>
+<span class="fc bfc" id="L45" title="All 2 branches covered.">      if (basket.size() &lt; 2) continue;</span>
+<span class="fc bfc" id="L46" title="All 2 branches covered.">      for (int target : new TreeSet&lt;&gt;(basket)) {</span>
+<span class="fc" id="L47">        double[] x = new double[size];</span>
+<span class="fc bfc" id="L48" title="All 4 branches covered.">        for (int index : basket) if (index != target) x[index] = 1;</span>
+<span class="fc" id="L49">        double[] h = hidden(x), y = predict(x), dh = new double[h.length];</span>
+<span class="fc bfc" id="L50" title="All 2 branches covered.">        for (int i = 0; i &lt; size; i++) {</span>
+<span class="fc bfc" id="L51" title="All 2 branches covered.">          double error = y[i] - (i == target ? 1 : 0);</span>
+<span class="fc bfc" id="L52" title="All 2 branches covered.">          for (int j = 0; j &lt; h.length; j++) dh[j] += error * output[i][j];</span>
+        }
+<span class="fc" id="L54">        double rate = .05;</span>
+<span class="fc bfc" id="L55" title="All 2 branches covered.">        for (int i = 0; i &lt; size; i++) {</span>
+<span class="fc bfc" id="L56" title="All 2 branches covered.">          double error = y[i] - (i == target ? 1 : 0);</span>
+<span class="fc" id="L57">          outputBias[i] -= rate * error;</span>
+<span class="fc bfc" id="L58" title="All 2 branches covered.">          for (int j = 0; j &lt; h.length; j++) output[i][j] -= rate * (error * h[j] + .001 * output[i][j]);</span>
+        }
+<span class="fc bfc" id="L60" title="All 2 branches covered.">        for (int j = 0; j &lt; h.length; j++) {</span>
+<span class="fc" id="L61">          double gradient = dh[j] * (1 - h[j] * h[j]);</span>
+<span class="fc" id="L62">          hiddenBias[j] -= rate * gradient;</span>
+<span class="fc bfc" id="L63" title="All 2 branches covered.">          for (int i = 0; i &lt; size; i++) input[j][i] -= rate * (gradient * x[i] + .001 * input[j][i]);</span>
+        }
+<span class="fc" id="L65">      }</span>
+<span class="fc" id="L66">    }</span>
+<span class="fc" id="L67">    return examples;</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

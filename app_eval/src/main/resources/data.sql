@@ -1,15 +1,15 @@
--- Seed H2 de demonstration. Dates fixes pour des tests reproductibles.
+-- Données H2 de démonstration. Dates fixes pour des tests reproductibles.
 INSERT INTO users (id, first_name, last_name, email, password_hash, role, created_at, updated_at) VALUES
  (1, 'Marie', 'Dupont', 'marie.dupont@shopwise.test', '$2a$10$GRLdNijSQMUvl/au9ofL.eDwmoohzzS7.rmNSJZ.0FxO/BTk76klW', 'ADMIN', TIMESTAMP '2026-01-10 09:00:00', TIMESTAMP '2026-01-10 09:00:00'),
  (2, 'Lucas', 'Martin', 'lucas.martin@shopwise.test', '$2a$10$GRLdNijSQMUvl/au9ofL.eDwmoohzzS7.rmNSJZ.0FxO/BTk76klW', 'USER', TIMESTAMP '2026-01-11 10:00:00', TIMESTAMP '2026-01-11 10:00:00');
 INSERT INTO categories (id, name, created_at, updated_at) VALUES
- (1, 'Epicerie', TIMESTAMP '2026-01-12 09:00:00', TIMESTAMP '2026-01-12 09:00:00'),
+ (1, 'Épicerie', TIMESTAMP '2026-01-12 09:00:00', TIMESTAMP '2026-01-12 09:00:00'),
  (2, 'Boissons', TIMESTAMP '2026-01-12 09:05:00', TIMESTAMP '2026-01-12 09:05:00'),
- (3, 'Hygiene', TIMESTAMP '2026-01-12 09:10:00', TIMESTAMP '2026-01-12 09:10:00');
+ (3, 'Hygiène', TIMESTAMP '2026-01-12 09:10:00', TIMESTAMP '2026-01-12 09:10:00');
 INSERT INTO products (id, sku, name, description, price, created_at, updated_at) VALUES
- (1, 'CAFE-ARABICA-250', 'Cafe Arabica 250g', 'Cafe moulu issu du commerce equitable', 6.90, TIMESTAMP '2026-01-13 08:00:00', TIMESTAMP '2026-01-13 08:00:00'),
- (2, 'THE-VERT-100', 'The vert 100g', 'The vert nature en vrac', 4.50, TIMESTAMP '2026-01-13 08:05:00', TIMESTAMP '2026-01-13 08:05:00'),
- (3, 'EAU-PLATE-150', 'Eau minerale 1.5L', 'Bouteille d eau minerale', 0.80, TIMESTAMP '2026-01-13 08:10:00', TIMESTAMP '2026-01-13 08:10:00'),
+ (1, 'CAFE-ARABICA-250', 'Café Arabica 250g', 'Café moulu issu du commerce équitable', 6.90, TIMESTAMP '2026-01-13 08:00:00', TIMESTAMP '2026-01-13 08:00:00'),
+ (2, 'THE-VERT-100', 'Thé vert 100g', 'Thé vert nature en vrac', 4.50, TIMESTAMP '2026-01-13 08:05:00', TIMESTAMP '2026-01-13 08:05:00'),
+ (3, 'EAU-PLATE-150', 'Eau minérale 1,5 L', 'Bouteille d’eau minérale', 0.80, TIMESTAMP '2026-01-13 08:10:00', TIMESTAMP '2026-01-13 08:10:00'),
  (4, 'SAVON-DOUX-100', 'Savon doux 100g', 'Savon solide pour les mains', 2.40, TIMESTAMP '2026-01-13 08:15:00', TIMESTAMP '2026-01-13 08:15:00');
 INSERT INTO product_categories (product_id, category_id) VALUES (1, 1), (1, 2), (2, 2), (3, 2), (4, 3);
 INSERT INTO sales (id, user_id, total_price, created_at, updated_at) VALUES

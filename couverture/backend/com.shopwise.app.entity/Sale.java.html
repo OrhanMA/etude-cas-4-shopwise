@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="fr"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Sale.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">app</a> &gt; <a href="index.source.html" class="el_package">com.shopwise.app.entity</a> &gt; <span class="el_source">Sale.java</span></div><h1>Sale.java</h1><pre class="source lang-java linenums">package com.shopwise.app.entity;
+
+import jakarta.persistence.*;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
+@Entity
+@Table(name = &quot;SALES&quot;)
+public class Sale {
+
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
+
+  @Column(nullable = false, precision = 10, scale = 2)
+  private BigDecimal totalPrice;
+
+<span class="pc" id="L22">  @OneToMany(mappedBy = &quot;sale&quot;, cascade = CascadeType.ALL, orphanRemoval = true)</span>
+  private Set&lt;SaleItem&gt; saleItems = new HashSet&lt;&gt;();
+
+  @ManyToOne
+  @JoinColumn(name = &quot;USER_ID&quot;)
+  private User user;
+
+  @CreationTimestamp private LocalDateTime createdAt;
+
+  @UpdateTimestamp private LocalDateTime updatedAt;
+
+  public Long getId() {
+<span class="fc" id="L34">    return id;</span>
+  }
+
+  public void setId(Long id) {
+<span class="nc" id="L38">    this.id = id;</span>
+<span class="nc" id="L39">  }</span>
+
+  public BigDecimal getTotalPrice() {
+<span class="fc" id="L42">    return totalPrice;</span>
+  }
+
+  public void setTotalPrice(BigDecimal totalPrice) {
+<span class="fc" id="L46">    this.totalPrice = totalPrice;</span>
+<span class="fc" id="L47">  }</span>
+
+  public Set&lt;SaleItem&gt; getSaleItems() {
+<span class="fc" id="L50">    return saleItems;</span>
+  }
+
+  public void setSaleItems(Set&lt;SaleItem&gt; saleItems) {
+<span class="nc" id="L54">    this.saleItems = saleItems;</span>
+<span class="nc" id="L55">  }</span>
+
+  public User getUser() {
+<span class="fc" id="L58">    return user;</span>
+  }
+
+  public void setUser(User user) {
+<span class="fc" id="L62">    this.user = user;</span>
+<span class="fc" id="L63">  }</span>
+
+  public LocalDateTime getCreatedAt() {
+<span class="fc" id="L66">    return createdAt;</span>
+  }
+
+  public void setCreatedAt(LocalDateTime createdAt) {
+<span class="nc" id="L70">    this.createdAt = createdAt;</span>
+<span class="nc" id="L71">  }</span>
+
+  public LocalDateTime getUpdatedAt() {
+<span class="fc" id="L74">    return updatedAt;</span>
+  }
+
+  public void setUpdatedAt(LocalDateTime updatedAt) {
+<span class="nc" id="L78">    this.updatedAt = updatedAt;</span>
+<span class="nc" id="L79">  }</span>
+
+<span class="fc" id="L81">  public Sale() {}</span>
+
+<span class="nc" id="L83">  public Sale(Long id, BigDecimal totalPrice, LocalDateTime createdAt, LocalDateTime updatedAt) {</span>
+<span class="nc" id="L84">    this.id = id;</span>
+<span class="nc" id="L85">    this.totalPrice = totalPrice;</span>
+<span class="nc" id="L86">    this.createdAt = createdAt;</span>
+<span class="nc" id="L87">    this.updatedAt = updatedAt;</span>
+<span class="nc" id="L88">  }</span>
+
+  public String toString() {
+<span class="nc" id="L91">    return &quot;Sale [id=&quot;</span>
+        + id
+        + &quot;, totalPrice=&quot;
+        + totalPrice
+        + &quot;, createdAt=&quot;
+        + createdAt
+        + &quot;, updatedAt=&quot;
+        + updatedAt
+        + &quot;]&quot;;
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

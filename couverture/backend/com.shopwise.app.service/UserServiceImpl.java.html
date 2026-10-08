@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="fr"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>UserServiceImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">app</a> &gt; <a href="index.source.html" class="el_package">com.shopwise.app.service</a> &gt; <span class="el_source">UserServiceImpl.java</span></div><h1>UserServiceImpl.java</h1><pre class="source lang-java linenums">package com.shopwise.app.service;
+
+import com.shopwise.app.dto.request.*;
+import com.shopwise.app.dto.response.UserResponse;
+import com.shopwise.app.entity.User;
+import com.shopwise.app.exception.NotFoundException;
+import com.shopwise.app.mapper.UserMapper;
+import com.shopwise.app.repository.UserRepository;
+import jakarta.transaction.Transactional;
+import java.util.List;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+
+@Service
+@Transactional
+public class UserServiceImpl implements UserService {
+  private final UserRepository repository;
+  private final UserMapper mapper;
+  private final PasswordEncoder passwordEncoder;
+
+  public UserServiceImpl(
+<span class="fc" id="L22">      UserRepository repository, UserMapper mapper, PasswordEncoder passwordEncoder) {</span>
+<span class="fc" id="L23">    this.repository = repository;</span>
+<span class="fc" id="L24">    this.mapper = mapper;</span>
+<span class="fc" id="L25">    this.passwordEncoder = passwordEncoder;</span>
+<span class="fc" id="L26">  }</span>
+
+  public UserResponse create(CreateUserRequest request) {
+<span class="nc" id="L29">    User user = mapper.toEntity(request);</span>
+<span class="nc" id="L30">    user.setPasswordHash(passwordEncoder.encode(request.getPassword()));</span>
+<span class="nc" id="L31">    return mapper.toResponse(repository.save(user));</span>
+  }
+
+  public UserResponse getById(Long id) {
+<span class="nc" id="L35">    return mapper.toResponse(</span>
+<span class="nc" id="L36">        repository.findById(id).orElseThrow(() -&gt; new NotFoundException(&quot;User not found&quot;)));</span>
+  }
+
+  public List&lt;UserResponse&gt; getAll() {
+<span class="nc" id="L40">    return repository.findAll().stream().map(mapper::toResponse).toList();</span>
+  }
+
+  public UserResponse update(Long id, UpdateUserRequest request) {
+<span class="nc" id="L44">    User entity =</span>
+<span class="nc" id="L45">        repository.findById(id).orElseThrow(() -&gt; new NotFoundException(&quot;User not found&quot;));</span>
+<span class="nc" id="L46">    mapper.updateEntity(request, entity);</span>
+<span class="nc" id="L47">    entity.setPasswordHash(passwordEncoder.encode(request.getPassword()));</span>
+<span class="nc" id="L48">    return mapper.toResponse(repository.save(entity));</span>
+  }
+
+  public void delete(Long id) {
+<span class="nc bnc" id="L52" title="All 2 branches missed.">    if (!repository.existsById(id)) throw new NotFoundException(&quot;User not found&quot;);</span>
+<span class="nc" id="L53">    repository.deleteById(id);</span>
+<span class="nc" id="L54">  }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

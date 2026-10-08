@@ -52,7 +52,30 @@ public class CustomExceptionHandler {
   public ResponseEntity<ApiError> handleAll(Exception ex) {
     log.error("Unexpected error", ex);
     return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-        .body(
-            new ApiError(HttpStatus.INTERNAL_SERVER_ERROR.value(), "An unexpected error occurred"));
+        .body(new ApiError(500, "An unexpected error occurred"));
   }
+
+  @ExceptionHandler(org.springframework.http.converter.HttpMessageNotReadableException.class)
+  public ResponseEntity<ApiError> handleMalformedBody(Exception ex) {
+    return ResponseEntity.badRequest().body(new ApiError(400, "Invalid JSON body"));
+  }
+
+  @ExceptionHandler(org.springframework.dao.DataIntegrityViolationException.class)
+  public ResponseEntity<ApiError> handleConflict(Exception ex) {
+    return ResponseEntity.status(HttpStatus.CONFLICT)
+        .body(new ApiError(409, "Resource conflicts with existing data"));
+  }
+
+  @ExceptionHandler(org.springframework.web.HttpRequestMethodNotSupportedException.class)
+  public ResponseEntity<ApiError> handleMethod(Exception ex) {
+    return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED)
+        .body(new ApiError(405, "Method not allowed"));
+  }
+
+  @ExceptionHandler(org.springframework.web.servlet.resource.NoResourceFoundException.class)
+  public ResponseEntity<ApiError> handleMissingRoute(Exception ex) {
+    return ResponseEntity.status(HttpStatus.NOT_FOUND)
+        .body(new ApiError(404, "Resource not found"));
+  }
+
 }

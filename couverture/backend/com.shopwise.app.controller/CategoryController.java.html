@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="fr"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CategoryController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">app</a> &gt; <a href="index.source.html" class="el_package">com.shopwise.app.controller</a> &gt; <span class="el_source">CategoryController.java</span></div><h1>CategoryController.java</h1><pre class="source lang-java linenums">package com.shopwise.app.controller;
+
+import com.shopwise.app.dto.request.CreateCategoryRequest;
+import com.shopwise.app.dto.request.UpdateCategoryRequest;
+import com.shopwise.app.dto.response.CategoryResponse;
+import com.shopwise.app.service.CategoryService;
+import jakarta.validation.Valid;
+import java.util.List;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping(&quot;/api/categories&quot;)
+public class CategoryController {
+
+  private final CategoryService categoryService;
+
+<span class="fc" id="L19">  public CategoryController(CategoryService categoryService) {</span>
+<span class="fc" id="L20">    this.categoryService = categoryService;</span>
+<span class="fc" id="L21">  }</span>
+
+  @PostMapping
+  public ResponseEntity&lt;CategoryResponse&gt; create(
+      @Valid @RequestBody CreateCategoryRequest request) {
+<span class="nc" id="L26">    CategoryResponse response = categoryService.create(request);</span>
+<span class="nc" id="L27">    return ResponseEntity.status(HttpStatus.CREATED).body(response);</span>
+  }
+
+  @GetMapping(&quot;/{id}&quot;)
+  public ResponseEntity&lt;CategoryResponse&gt; getById(@PathVariable Long id) {
+<span class="fc" id="L32">    CategoryResponse response = categoryService.getById(id);</span>
+<span class="fc" id="L33">    return ResponseEntity.ok(response);</span>
+  }
+
+  @GetMapping
+  public ResponseEntity&lt;List&lt;CategoryResponse&gt;&gt; getAll() {
+<span class="fc" id="L38">    List&lt;CategoryResponse&gt; categories = categoryService.getAll();</span>
+<span class="fc" id="L39">    return ResponseEntity.ok(categories);</span>
+  }
+
+  @PutMapping(&quot;/{id}&quot;)
+  public ResponseEntity&lt;CategoryResponse&gt; update(
+      @PathVariable Long id, @Valid @RequestBody UpdateCategoryRequest request) {
+<span class="nc" id="L45">    CategoryResponse response = categoryService.update(id, request);</span>
+<span class="nc" id="L46">    return ResponseEntity.ok(response);</span>
+  }
+
+  @DeleteMapping(&quot;/{id}&quot;)
+  public ResponseEntity&lt;Void&gt; delete(@PathVariable Long id) {
+<span class="nc" id="L51">    categoryService.delete(id);</span>
+<span class="nc" id="L52">    return ResponseEntity.noContent().build();</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

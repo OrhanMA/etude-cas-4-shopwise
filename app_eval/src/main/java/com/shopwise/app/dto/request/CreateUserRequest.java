@@ -24,6 +24,7 @@ public class CreateUserRequest {
 
   @NotBlank
   @Size(max = 50)
+  @jakarta.validation.constraints.Pattern(regexp = "ADMIN|USER")
   private String role;
 
   public String getFirstName() {

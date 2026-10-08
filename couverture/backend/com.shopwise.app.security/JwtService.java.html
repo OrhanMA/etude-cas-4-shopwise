@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="fr"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>JwtService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">app</a> &gt; <a href="index.source.html" class="el_package">com.shopwise.app.security</a> &gt; <span class="el_source">JwtService.java</span></div><h1>JwtService.java</h1><pre class="source lang-java linenums">package com.shopwise.app.security;
+
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
+import org.springframework.security.oauth2.jwt.JwsHeader;
+import org.springframework.security.oauth2.jwt.JwtClaimsSet;
+import org.springframework.security.oauth2.jwt.JwtEncoder;
+import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
+import org.springframework.stereotype.Service;
+
+@Service
+public class JwtService {
+  private final JwtEncoder jwtEncoder;
+  private final long expirationSeconds;
+  private final com.shopwise.app.repository.UserRepository users;
+
+  public JwtService(
+      JwtEncoder jwtEncoder,
+      com.shopwise.app.repository.UserRepository users,
+<span class="fc" id="L24">      @Value(&quot;${app.security.jwt.expiration-seconds:3600}&quot;) long expirationSeconds) {</span>
+<span class="fc" id="L25">    this.jwtEncoder = jwtEncoder;</span>
+<span class="fc" id="L26">    this.users = users;</span>
+<span class="fc" id="L27">    this.expirationSeconds = expirationSeconds;</span>
+<span class="fc" id="L28">  }</span>
+
+  public String generateToken(Authentication authentication) {
+<span class="fc" id="L31">    Instant issuedAt = Instant.now();</span>
+<span class="fc" id="L32">    String role =</span>
+<span class="fc" id="L33">        authentication.getAuthorities().stream()</span>
+<span class="fc" id="L34">            .map(GrantedAuthority::getAuthority)</span>
+<span class="fc" id="L35">            .filter(authority -&gt; authority.startsWith(&quot;ROLE_&quot;))</span>
+<span class="fc" id="L36">            .findFirst()</span>
+<span class="fc" id="L37">            .orElse(&quot;ROLE_USER&quot;);</span>
+
+    JwtClaimsSet claims =
+<span class="fc" id="L40">        JwtClaimsSet.builder()</span>
+<span class="fc" id="L41">            .subject(authentication.getName())</span>
+<span class="fc" id="L42">            .issuedAt(issuedAt)</span>
+<span class="fc" id="L43">            .expiresAt(issuedAt.plus(expirationSeconds, ChronoUnit.SECONDS))</span>
+<span class="fc" id="L44">            .claim(&quot;role&quot;, role)</span>
+<span class="fc" id="L45">            .claim(&quot;accountVersion&quot;, users.findByEmail(authentication.getName()).orElseThrow()</span>
+<span class="fc" id="L46">                .getUpdatedAt().toString())</span>
+<span class="fc" id="L47">            .build();</span>
+
+<span class="fc" id="L49">    return jwtEncoder</span>
+<span class="fc" id="L50">        .encode(JwtEncoderParameters.from(JwsHeader.with(MacAlgorithm.HS256).build(), claims))</span>
+<span class="fc" id="L51">        .getTokenValue();</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

@@ -34,8 +34,8 @@ Il doit notamment :
 
 * exploiter l’historique des ventes ;
 * exploiter les informations du catalogue et des catégories ;
-* utiliser les embeddings générés par le modèle ML ;
-* calculer un score de similarité entre produits ;
+* entraîner un réseau neuronal sur des paniers dont un produit est masqué ;
+* calculer les scores des produits à partir d'un produit de référence ;
 * combiner éventuellement plusieurs signaux : ML, catégories, popularité ;
 * retourner les produits les plus pertinents via l’API ;
 * permettre de changer ou faire évoluer l’algorithme sans modifier les autres modules.
@@ -75,9 +75,9 @@ Exemple :
 ```text
 POST /api/sales
         ↓
-SalesController
+SaleController
         ↓
-SalesService
+SaleService
         ↓
 SaleRepository
 ```
@@ -91,18 +91,18 @@ Responsable de l’accès à la base de données.
 Elle doit :
 
 * lire et écrire les entités ;
-* gérer les requêtes vers PostgreSQL ;
+* gérer les requêtes vers la base H2 de démonstration via Spring Data JPA ;
 * fournir les données aux services métier ;
 * masquer les détails de persistance aux couches supérieures.
 
 Exemple :
 
 ```text
-SalesService
+SaleService
       ↓
 SaleRepository
       ↓
-PostgreSQL
+H2
 ```
 
 ### Gestion des erreurs

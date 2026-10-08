@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="fr"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>RecommendationService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">app</a> &gt; <a href="index.source.html" class="el_package">com.shopwise.app.recommendation</a> &gt; <span class="el_source">RecommendationService.java</span></div><h1>RecommendationService.java</h1><pre class="source lang-java linenums">package com.shopwise.app.recommendation;
+
+import com.shopwise.app.entity.*;
+import com.shopwise.app.exception.NotFoundException;
+import com.shopwise.app.repository.*;
+import java.math.BigDecimal;
+import java.util.*;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+@Service
+public class RecommendationService {
+<span class="fc" id="L13">  public record Result(Long productId, String name, BigDecimal price, String source, double score) {}</span>
+  private final RecommendationDataProvider provider;
+  private final RecommendationStrategy strategy;
+
+<span class="fc" id="L17">  public RecommendationService(RecommendationDataProvider provider, RecommendationStrategy strategy) {</span>
+<span class="fc" id="L18">    this.provider = provider;</span>
+<span class="fc" id="L19">    this.strategy = strategy;</span>
+<span class="fc" id="L20">  }</span>
+
+  @Transactional(readOnly = true)
+  public List&lt;Result&gt; recommend(Long productId, int limit) {
+<span class="fc" id="L24">    List&lt;Product&gt; catalogue = provider.products().stream().sorted(Comparator.comparing(Product::getId)).toList();</span>
+<span class="fc" id="L25">    Map&lt;Long, Integer&gt; indices = new HashMap&lt;&gt;();</span>
+<span class="fc bfc" id="L26" title="All 2 branches covered.">    for (int i = 0; i &lt; catalogue.size(); i++) indices.put(catalogue.get(i).getId(), i);</span>
+<span class="fc bfc" id="L27" title="All 4 branches covered.">    if (productId != null &amp;&amp; !indices.containsKey(productId)) throw new NotFoundException(&quot;Product not found&quot;);</span>
+<span class="fc bfc" id="L28" title="All 2 branches covered.">    if (catalogue.isEmpty()) return List.of();</span>
+<span class="fc" id="L29">    List&lt;Set&lt;Integer&gt;&gt; baskets = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L30">    double[] popularity = new double[catalogue.size()];</span>
+<span class="fc" id="L31">    Set&lt;Integer&gt; trainedProducts = new HashSet&lt;&gt;();</span>
+<span class="fc bfc" id="L32" title="All 2 branches covered.">    for (Sale sale : provider.sales()) {</span>
+<span class="fc" id="L33">      Set&lt;Integer&gt; basket = new TreeSet&lt;&gt;();</span>
+<span class="fc bfc" id="L34" title="All 2 branches covered.">      for (SaleItem item : sale.getSaleItems()) {</span>
+<span class="pc bpc" id="L35" title="1 of 2 branches missed.">        if (item.getProduct() == null) continue;</span>
+<span class="fc" id="L36">        Integer index = indices.get(item.getProduct().getId());</span>
+<span class="pc bpc" id="L37" title="3 of 6 branches missed.">        if (index != null &amp;&amp; item.getQuantity() != null &amp;&amp; item.getQuantity() &gt; 0) {</span>
+<span class="fc" id="L38">          basket.add(index);</span>
+<span class="fc" id="L39">          popularity[index] += item.getQuantity();</span>
+        }
+<span class="fc" id="L41">      }</span>
+<span class="fc" id="L42">      baskets.add(basket);</span>
+<span class="pc bpc" id="L43" title="1 of 2 branches missed.">      if (basket.size() &gt;= 2) trainedProducts.addAll(basket);</span>
+<span class="fc" id="L44">    }</span>
+<span class="fc" id="L45">    double[] scores = new double[catalogue.size()];</span>
+<span class="fc bfc" id="L46" title="All 4 branches covered.">    boolean neural = productId != null &amp;&amp; trainedProducts.contains(indices.get(productId));</span>
+<span class="fc bfc" id="L47" title="All 2 branches covered.">    if (neural) {</span>
+<span class="fc" id="L48">      scores = strategy.score(catalogue.size(), baskets, indices.get(productId));</span>
+    }
+<span class="fc bfc" id="L50" title="All 2 branches covered.">    Set&lt;Long&gt; referenceCategories = productId == null ? Set.of() : categoryIds(catalogue.get(indices.get(productId)));</span>
+<span class="fc" id="L51">    List&lt;Result&gt; results = new ArrayList&lt;&gt;();</span>
+<span class="fc bfc" id="L52" title="All 2 branches covered.">    for (int i = 0; i &lt; catalogue.size(); i++) {</span>
+<span class="fc" id="L53">      Product product = catalogue.get(i);</span>
+<span class="fc bfc" id="L54" title="All 2 branches covered.">      if (Objects.equals(product.getId(), productId)) continue;</span>
+<span class="fc" id="L55">      Set&lt;Long&gt; categories = categoryIds(product);</span>
+<span class="fc" id="L56">      Set&lt;Long&gt; union = new HashSet&lt;&gt;(categories); union.addAll(referenceCategories);</span>
+<span class="fc" id="L57">      categories.retainAll(referenceCategories);</span>
+<span class="fc bfc" id="L58" title="All 2 branches covered.">      double similarity = union.isEmpty() ? 0 : (double) categories.size() / union.size();</span>
+<span class="fc bfc" id="L59" title="All 8 branches covered.">      String source = neural &amp;&amp; trainedProducts.contains(i) ? &quot;NEURAL&quot; : similarity &gt; 0 ? &quot;CATEGORY&quot; : popularity[i] &gt; 0 ? &quot;POPULARITY&quot; : &quot;CATALOGUE&quot;;</span>
+<span class="fc bfc" id="L60" title="All 4 branches covered.">      double score = source.equals(&quot;NEURAL&quot;) ? scores[i] : source.equals(&quot;CATEGORY&quot;) ? similarity : popularity[i];</span>
+<span class="fc" id="L61">      results.add(new Result(product.getId(), product.getName(), product.getPrice(), source, score));</span>
+    }
+<span class="fc" id="L63">    return results.stream().sorted(Comparator.comparingInt((Result r) -&gt; List.of(&quot;NEURAL&quot;, &quot;CATEGORY&quot;, &quot;POPULARITY&quot;, &quot;CATALOGUE&quot;).indexOf(r.source())).thenComparing(Comparator.comparingDouble(Result::score).reversed()).thenComparing(Result::productId)).limit(limit).toList();</span>
+  }
+
+  private Set&lt;Long&gt; categoryIds(Product product) {
+<span class="fc" id="L67">    Set&lt;Long&gt; ids = new HashSet&lt;&gt;();</span>
+<span class="fc bfc" id="L68" title="All 2 branches covered.">    for (Category category : product.getCategories()) ids.add(category.getId());</span>
+<span class="fc" id="L69">    return ids;</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

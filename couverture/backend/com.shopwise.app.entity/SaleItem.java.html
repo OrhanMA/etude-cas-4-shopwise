@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="fr"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SaleItem.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">app</a> &gt; <a href="index.source.html" class="el_package">com.shopwise.app.entity</a> &gt; <span class="el_source">SaleItem.java</span></div><h1>SaleItem.java</h1><pre class="source lang-java linenums">package com.shopwise.app.entity;
+
+import jakarta.persistence.*;
+import java.math.BigDecimal;
+
+@Entity
+@Table(name = &quot;SALE_ITEMS&quot;)
+public class SaleItem {
+
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
+
+  @ManyToOne
+  @JoinColumn(name = &quot;sale_id&quot;)
+  private Sale sale;
+
+  @ManyToOne
+  @JoinColumn(name = &quot;product_id&quot;)
+  private Product product;
+
+  private Integer quantity;
+
+  @Column(nullable = false, precision = 10, scale = 2)
+  private BigDecimal unitPrice;
+
+  public Long getId() {
+<span class="fc" id="L28">    return id;</span>
+  }
+
+  public void setId(Long id) {
+<span class="nc" id="L32">    this.id = id;</span>
+<span class="nc" id="L33">  }</span>
+
+  public Sale getSale() {
+<span class="nc" id="L36">    return sale;</span>
+  }
+
+  public void setSale(Sale sale) {
+<span class="fc" id="L40">    this.sale = sale;</span>
+<span class="fc" id="L41">  }</span>
+
+  public Product getProduct() {
+<span class="fc" id="L44">    return product;</span>
+  }
+
+  public void setProduct(Product product) {
+<span class="fc" id="L48">    this.product = product;</span>
+<span class="fc" id="L49">  }</span>
+
+  public Integer getQuantity() {
+<span class="fc" id="L52">    return quantity;</span>
+  }
+
+  public void setQuantity(Integer quantity) {
+<span class="fc" id="L56">    this.quantity = quantity;</span>
+<span class="fc" id="L57">  }</span>
+
+  public BigDecimal getUnitPrice() {
+<span class="fc" id="L60">    return unitPrice;</span>
+  }
+
+  public void setUnitPrice(BigDecimal unitPrice) {
+<span class="fc" id="L64">    this.unitPrice = unitPrice;</span>
+<span class="fc" id="L65">  }</span>
+
+<span class="fc" id="L67">  public SaleItem() {}</span>
+
+<span class="nc" id="L69">  public SaleItem(Long id, Sale sale, Product product, Integer quantity, BigDecimal unitPrice) {</span>
+<span class="nc" id="L70">    this.id = id;</span>
+<span class="nc" id="L71">    this.sale = sale;</span>
+<span class="nc" id="L72">    this.product = product;</span>
+<span class="nc" id="L73">    this.quantity = quantity;</span>
+<span class="nc" id="L74">    this.unitPrice = unitPrice;</span>
+<span class="nc" id="L75">  }</span>
+
+  @Override
+  public String toString() {
+<span class="nc" id="L79">    return &quot;SaleItem [id=&quot;</span>
+        + id
+        + &quot;, sale=&quot;
+        + sale
+        + &quot;, product=&quot;
+        + product
+        + &quot;, quantity=&quot;
+        + quantity
+        + &quot;, unitPrice=&quot;
+        + unitPrice
+        + &quot;]&quot;;
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

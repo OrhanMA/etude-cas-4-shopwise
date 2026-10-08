@@ -34,6 +34,7 @@ class SecurityAuthorizationTest {
   @MockitoBean private SaleService saleService;
 
   @MockitoBean private UserDetailsService userDetailsService;
+  @MockitoBean private com.shopwise.app.repository.UserRepository userRepository;
 
   @BeforeEach
   void mockSuccessfulAdminResponses() {
