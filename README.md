@@ -10,7 +10,7 @@ La responsabilité des modules est décrite dans `markdown-files/Responsabilité
 
 ## Attributs de qualité
 
-Justification dans `markdown-files/Attributs-qualite.md`
+Justification dans `markdown-files/Attributs-qualité.md`
 
 ## Sécurité et normalisation des erreurs
 
@@ -28,13 +28,52 @@ J'ai opté pour un système hybride qui va utiliser 3 axes :
 L'importance des sources de recommendations pèseront dans l'ordre suivant pour les recommendations : 
 Tendances ML > Similitude catégories > Popularité.
 
-Je vais opter pour un calcul de recommendations avec des poids pour faire ressortir les produits à recommander.
+Le classement implémenté utilise des niveaux successifs : réseau, catégories,
+puis popularité. Une pondération commune nécessiterait de calibrer les scores.
 
 La décision du système hybride est justifié par le fait qu'une boutique avec un petit historique de ventes ou bien un produit encore peu vendu ne permettent pas d'identifier une recommandation.
 Dans ces cas, les recommandations basées sur les catégories et la popularité permettront de prendre le relais.
 
 
 # Références
+
+## US8 — Évolutivité et évaluation
+
+Le package `recommendation` isole l'API, le service hybride, les données et
+l'apprentissage. `RecommendationStrategy` reçoit des paniers indexés indépendants
+de JPA et produit des scores. `NeuralRecommendationStrategy` est injectée par
+Spring : pour remplacer le modèle, fournir une autre implémentation et sélectionner
+le bean par profil ou qualifier. `RecommendationDataProvider` permet de remplacer
+la source sans changer l'API. Son adaptateur JPA charge produits/catégories et
+ventes/lignes avec jointures, sans requête supplémentaire par panier.
+L'interface de données transporte encore les entités métier : une source externe
+doit les adapter. Un instantané immuable indépendant serait une évolution utile.
+
+```text
+API -> service hybride -> fournisseur de données -> JPA
+                       -> stratégie -> réseau neuronal
+                       -> catégories / popularité
+```
+
+Le nombre d'époques est configurable par `app.recommendations.epochs`, entre 1
+et 1000 (150 par défaut). Aucun modèle mutable n'est partagé entre demandes.
+Le test d'évolution remplace la stratégie et la source, puis ajoute une vente
+pour vérifier la prise en compte des nouvelles données.
+
+L'évaluation utilise 32 paniers synthétiques d'entraînement et quatre paniers
+réservés représentant huit prédictions. Les associations des paniers réservés
+existent auparavant dans l'entraînement : cette expérience démontre la reproduction
+d'un motif, pas la découverte de comportements nouveaux. Elle compare le succès
+dans les cinq premiers résultats avec une référence de popularité, calculée sur
+les seules données d'entraînement (égalité des fréquences, départage par ID).
+Résultat de ce jeu déterministe : réseau 8/8 (100 %), popularité 6/8 (75 %).
+Les métriques sont affichées lors des tests. Aucun gain commercial n'est démontré.
+
+Avec peu de données, le réseau risque de mémoriser les exemples plutôt que de
+généraliser. Les pistes d'amélioration comprennent une évaluation chronologique
+sur davantage de ventes, des nouveaux motifs et produits, une validation distincte
+pour les hyperparamètres, l'arrêt anticipé, le versionnement du modèle,
+l'entraînement hors requête et un cache invalidé après modification des données.
 
 ## US7 — Recommandations neuronales hybrides
 
