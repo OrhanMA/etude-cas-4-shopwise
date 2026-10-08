@@ -43,6 +43,11 @@ public class CustomExceptionHandler {
         .body(new ApiError(HttpStatus.UNAUTHORIZED.value(), "Invalid credentials"));
   }
 
+  @ExceptionHandler(org.springframework.web.method.annotation.MethodArgumentTypeMismatchException.class)
+  public ResponseEntity<ApiError> handleParameterType(Exception ex) {
+    return ResponseEntity.badRequest().body(new ApiError(400, "Invalid parameter type"));
+  }
+
   @ExceptionHandler(Exception.class)
   public ResponseEntity<ApiError> handleAll(Exception ex) {
     log.error("Unexpected error", ex);
