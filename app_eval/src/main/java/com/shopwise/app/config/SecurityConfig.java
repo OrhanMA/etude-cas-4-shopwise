@@ -98,7 +98,13 @@ public class SecurityConfig {
                                 HttpServletResponse.SC_FORBIDDEN,
                                 "Access denied: ADMIN role required")));
 
-    http.oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()));
+    var authorities = new org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter();
+    authorities.setAuthoritiesClaimName("role");
+    // JwtService already stores ROLE_ADMIN / ROLE_USER in this claim.
+    authorities.setAuthorityPrefix("");
+    var authentication = new org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter();
+    authentication.setJwtGrantedAuthoritiesConverter(authorities);
+    http.oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> jwt.jwtAuthenticationConverter(authentication)));
 
     return http.build();
   }
