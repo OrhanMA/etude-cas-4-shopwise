@@ -72,4 +72,18 @@ class AuthenticationTest {
   private String loginPayload() {
     return "{\"email\":\"marie.dupont@shopwise.test\",\"password\":\"password\"}";
   }
+
+  @Test
+  void realAdminTokenAllowsWritesAndUserTokenDoesNot() throws Exception {
+    for (String email : new String[] {"marie.dupont@shopwise.test", "lucas.martin@shopwise.test"}) {
+      var login = mockMvc.perform(post("/api/auth/login").contentType(MediaType.APPLICATION_JSON)
+          .content("{\"email\":\"" + email + "\",\"password\":\"password\"}"))
+          .andExpect(status().isOk()).andReturn();
+      String token = objectMapper.readTree(login.getResponse().getContentAsString()).get("token").asText();
+      // Empty payload reaches validation for ADMIN, but must be refused for USER.
+      mockMvc.perform(post("/api/sales").header("Authorization", "Bearer " + token)
+          .contentType(MediaType.APPLICATION_JSON).content("{}"))
+          .andExpect(status().is(email.startsWith("marie") ? 400 : 403));
+    }
+  }
 }
