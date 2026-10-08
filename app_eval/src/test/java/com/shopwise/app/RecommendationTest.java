@@ -42,6 +42,8 @@ class RecommendationTest {
       .andExpect(jsonPath("$[0].productId").exists()).andExpect(jsonPath("$[0].source").exists());
   }
   @Test void rejectsInvalidAndUnknownParameters() throws Exception {
+    mvc.perform(get("/api/recommendations").with(jwt()).param("limit", "abc")).andExpect(status().isBadRequest());
+    mvc.perform(get("/api/recommendations").with(jwt()).param("limit", "21")).andExpect(status().isBadRequest());
     mvc.perform(get("/api/recommendations").with(jwt()).param("limit", "0")).andExpect(status().isBadRequest()).andExpect(jsonPath("$.status").value(400));
     mvc.perform(get("/api/recommendations").with(jwt()).param("productId", "999999")).andExpect(status().isNotFound());
   }

@@ -11,17 +11,17 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class RecommendationService {
   public record Result(Long productId, String name, BigDecimal price, String source, double score) {}
-  private final ProductRepository products;
-  private final SaleRepository sales;
+  private final RecommendationDataProvider provider;
+  private final RecommendationStrategy strategy;
 
-  public RecommendationService(ProductRepository products, SaleRepository sales) {
-    this.products = products;
-    this.sales = sales;
+  public RecommendationService(RecommendationDataProvider provider, RecommendationStrategy strategy) {
+    this.provider = provider;
+    this.strategy = strategy;
   }
 
   @Transactional(readOnly = true)
   public List<Result> recommend(Long productId, int limit) {
-    List<Product> catalogue = products.findAll().stream().sorted(Comparator.comparing(Product::getId)).toList();
+    List<Product> catalogue = provider.products().stream().sorted(Comparator.comparing(Product::getId)).toList();
     Map<Long, Integer> indices = new HashMap<>();
     for (int i = 0; i < catalogue.size(); i++) indices.put(catalogue.get(i).getId(), i);
     if (productId != null && !indices.containsKey(productId)) throw new NotFoundException("Product not found");
@@ -29,9 +29,10 @@ public class RecommendationService {
     List<Set<Integer>> baskets = new ArrayList<>();
     double[] popularity = new double[catalogue.size()];
     Set<Integer> trainedProducts = new HashSet<>();
-    for (Sale sale : sales.findAllByOrderByCreatedAtDesc()) {
+    for (Sale sale : provider.sales()) {
       Set<Integer> basket = new TreeSet<>();
       for (SaleItem item : sale.getSaleItems()) {
+        if (item.getProduct() == null) continue;
         Integer index = indices.get(item.getProduct().getId());
         if (index != null && item.getQuantity() != null && item.getQuantity() > 0) {
           basket.add(index);
@@ -41,14 +42,10 @@ public class RecommendationService {
       baskets.add(basket);
       if (basket.size() >= 2) trainedProducts.addAll(basket);
     }
-    NeuralModel model = new NeuralModel(catalogue.size());
     double[] scores = new double[catalogue.size()];
     boolean neural = productId != null && trainedProducts.contains(indices.get(productId));
     if (neural) {
-      model.train(baskets, 150);
-      double[] query = new double[catalogue.size()];
-      query[indices.get(productId)] = 1;
-      scores = model.predict(query);
+      scores = strategy.score(catalogue.size(), baskets, indices.get(productId));
     }
     Set<Long> referenceCategories = productId == null ? Set.of() : categoryIds(catalogue.get(indices.get(productId)));
     List<Result> results = new ArrayList<>();
