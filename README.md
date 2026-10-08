@@ -398,6 +398,19 @@ Les compétences de l'énoncé sont traitées sur le périmètre backend ; les f
 du scénario général non demandées (rendez-vous, fidélité, application mobile,
 multi-commerces) ne sont pas présentées comme réalisées.
 
+## Utilisation de Codex
+
+Ce projet et son rendu final ont été réalisés avec l'assistance de Codex,
+un outil d'intelligence artificielle d'OpenAI. Cette assistance a porté sur
+l'analyse des besoins, les propositions d'architecture, la génération et la
+modification de code, la préparation et l'exécution des tests, la correction
+de défauts, ainsi que la rédaction, la reformulation et la mise en forme des
+livrables. Les orientations ont été définies au fil des échanges avec l'auteur.
+Les résultats de validation rapportés correspondent aux vérifications décrites
+dans ce dépôt ; l'utilisation de Codex ne constitue ni une certification de
+sécurité ni une garantie d'absence d'erreurs. L'auteur reste responsable du
+contenu remis et de sa compréhension.
+
 ## Outils de conception
 
 Le diagramme de base de données a été créé avec [drawdb.app](https://drawdb.app/)
