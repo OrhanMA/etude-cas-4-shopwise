@@ -10,6 +10,8 @@ administrateurs. Les règles sont déclarées dans `SecurityConfig` avec une
 
 - `POST`, `PUT` et `DELETE` sur `/api/products/**` exigent le rôle `ADMIN` ;
 - `POST`, `PUT` et `DELETE` sur `/api/sales/**` exigent le rôle `ADMIN` ;
+- les mêmes écritures sur `/api/categories/**` exigent `ADMIN` ;
+- toutes les opérations sur `/api/users/**`, y compris la lecture, exigent `ADMIN` ;
 - un utilisateur authentifié avec le rôle `USER` reçoit `403 Forbidden` ;
 - un utilisateur sans authentification reçoit `401 Unauthorized`.
 
@@ -27,7 +29,20 @@ L'API utilise un token JWT Bearer et une session stateless :
 3. le mot de passe est comparé avec son hash BCrypt ;
 4. un JWT signé est généré avec l'email comme sujet et le rôle comme claim ;
 5. le client renvoie `Authorization: Bearer <token>` sur les requêtes suivantes ;
-6. le Resource Server vérifie la signature et l'expiration du JWT.
+6. le Resource Server vérifie la signature, l'expiration et la version du compte.
+
+La version est la date `updatedAt` du compte, ajoutée au JWT. Une modification
+du rôle, du mot de passe ou des informations du compte invalide les anciens
+jetons ; une suppression du compte les invalide également. Ce mécanisme nécessite
+une lecture en base à chaque requête. Les rôles reçus sont limités à `ADMIN` et `USER`.
+
+Le claim `role` contient déjà `ROLE_ADMIN` ou `ROLE_USER`.
+`JwtAuthenticationConverter` utilise un `JwtGrantedAuthoritiesConverter` configuré
+sur ce claim, avec un préfixe vide. Sans cette configuration, le convertisseur
+par défaut lit les scopes et les écritures administrateur restent refusées.
+Le test `realAdminTokenAllowsWritesAndUserTokenDoesNot` passe par une vraie
+connexion pour vérifier cette conversion. Le parcours HTTP a également confirmé
+une création de vente en 201 pour Marie et un refus 403 pour Lucas.
 
 JWT est adapté à une API stateless : le serveur ne conserve pas de session entre
 deux requêtes. La durée d'expiration est configurable avec
@@ -76,14 +91,23 @@ les filtres Spring Security.
 | Identifiants invalides | 401 | `Invalid credentials` |
 | Rôle insuffisant | 403 | `Access denied: ADMIN role required` |
 | Ressource inexistante | 404 | message métier, par exemple `Sale not found` |
+| Corps JSON mal formé | 400 | `Invalid JSON body` |
+| Méthode non prise en charge | 405 | `Method not allowed` |
+| Doublon ou ressource encore référencée | 409 | `Resource conflicts with existing data` |
 | Erreur inattendue | 500 | `An unexpected error occurred` |
 
 ## Limites et évolutions
 
 Pour une application en production, il faudra faire les modifications suivantes :
 
-- remplacer le secret HMAC de démonstration par un secret géré par un coffre de
-  secrets ou une paire de clés asymétriques ;
+- gérer le secret HMAC dans un coffre de secrets ou utiliser une paire de clés
+  asymétriques ; sans variable `JWT_SECRET`, la démo crée une clé aléatoire ;
 - ajouter la rotation des clés JWT et un refresh token ;
-- ne pas exposer l'API CRUD utilisateur directement en production ;
-- compléter les tests par des scénarios de token expiré et falsifié.
+- ajouter HTTPS, une limitation des tentatives, un journal d'audit et une politique
+  de gestion des comptes adaptée à la production ;
+- ajouter une isolation multi-commerces si le périmètre SaaS est étendu.
+
+La vérification finale comprend les jetons expirés et falsifiés, les droits des
+trois profils sur toutes les routes CRUD, et les changements ou suppressions de
+comptes. La console H2 est désactivée. Les données de démonstration doivent rester
+sur une instance locale ; ces contrôles ne constituent pas un audit de sécurité exhaustif.

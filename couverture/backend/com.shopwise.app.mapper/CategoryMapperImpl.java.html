@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="fr"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CategoryMapperImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">app</a> &gt; <a href="index.source.html" class="el_package">com.shopwise.app.mapper</a> &gt; <span class="el_source">CategoryMapperImpl.java</span></div><h1>CategoryMapperImpl.java</h1><pre class="source lang-java linenums">package com.shopwise.app.mapper;
+
+import com.shopwise.app.dto.request.CreateCategoryRequest;
+import com.shopwise.app.dto.request.UpdateCategoryRequest;
+import com.shopwise.app.dto.response.CategoryResponse;
+import com.shopwise.app.entity.Category;
+import java.util.ArrayList;
+import java.util.List;
+import javax.annotation.processing.Generated;
+import org.springframework.stereotype.Component;
+
+@Generated(
+    value = &quot;org.mapstruct.ap.MappingProcessor&quot;,
+    date = &quot;2026-10-08T14:11:16+0200&quot;,
+    comments = &quot;version: 1.5.5.Final, compiler: javac, environment: Java 21.0.4 (Oracle Corporation)&quot;
+)
+@Component
+<span class="fc" id="L18">public class CategoryMapperImpl implements CategoryMapper {</span>
+
+    @Override
+    public Category toEntity(CreateCategoryRequest dto) {
+<span class="nc bnc" id="L22" title="All 2 branches missed.">        if ( dto == null ) {</span>
+<span class="nc" id="L23">            return null;</span>
+        }
+
+<span class="nc" id="L26">        Category category = new Category();</span>
+
+<span class="nc" id="L28">        category.setName( dto.getName() );</span>
+
+<span class="nc" id="L30">        return category;</span>
+    }
+
+    @Override
+    public void updateEntity(UpdateCategoryRequest dto, Category entity) {
+<span class="nc bnc" id="L35" title="All 2 branches missed.">        if ( dto == null ) {</span>
+<span class="nc" id="L36">            return;</span>
+        }
+
+<span class="nc" id="L39">        entity.setName( dto.getName() );</span>
+<span class="nc" id="L40">    }</span>
+
+    @Override
+    public CategoryResponse toResponse(Category category) {
+<span class="pc bpc" id="L44" title="1 of 2 branches missed.">        if ( category == null ) {</span>
+<span class="nc" id="L45">            return null;</span>
+        }
+
+<span class="fc" id="L48">        CategoryResponse categoryResponse = new CategoryResponse();</span>
+
+<span class="fc" id="L50">        categoryResponse.setId( category.getId() );</span>
+<span class="fc" id="L51">        categoryResponse.setName( category.getName() );</span>
+<span class="fc" id="L52">        categoryResponse.setCreatedAt( category.getCreatedAt() );</span>
+<span class="fc" id="L53">        categoryResponse.setUpdatedAt( category.getUpdatedAt() );</span>
+
+<span class="fc" id="L55">        return categoryResponse;</span>
+    }
+
+    @Override
+    public List&lt;CategoryResponse&gt; toResponseList(List&lt;Category&gt; categories) {
+<span class="pc bpc" id="L60" title="1 of 2 branches missed.">        if ( categories == null ) {</span>
+<span class="nc" id="L61">            return null;</span>
+        }
+
+<span class="fc" id="L64">        List&lt;CategoryResponse&gt; list = new ArrayList&lt;CategoryResponse&gt;( categories.size() );</span>
+<span class="fc bfc" id="L65" title="All 2 branches covered.">        for ( Category category : categories ) {</span>
+<span class="fc" id="L66">            list.add( toResponse( category ) );</span>
+<span class="fc" id="L67">        }</span>
+
+<span class="fc" id="L69">        return list;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

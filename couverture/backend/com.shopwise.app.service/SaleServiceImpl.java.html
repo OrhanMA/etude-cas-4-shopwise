@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="fr"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SaleServiceImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">app</a> &gt; <a href="index.source.html" class="el_package">com.shopwise.app.service</a> &gt; <span class="el_source">SaleServiceImpl.java</span></div><h1>SaleServiceImpl.java</h1><pre class="source lang-java linenums">package com.shopwise.app.service;
+
+import com.shopwise.app.dto.request.*;
+import com.shopwise.app.dto.response.*;
+import com.shopwise.app.entity.*;
+import com.shopwise.app.exception.NotFoundException;
+import com.shopwise.app.repository.*;
+import jakarta.transaction.Transactional;
+import java.math.BigDecimal;
+import java.util.*;
+import org.springframework.stereotype.Service;
+
+@Service
+@Transactional
+public class SaleServiceImpl implements SaleService {
+  private final SaleRepository sales;
+  private final UserRepository users;
+  private final ProductRepository products;
+
+<span class="fc" id="L20">  public SaleServiceImpl(SaleRepository sales, UserRepository users, ProductRepository products) {</span>
+<span class="fc" id="L21">    this.sales = sales;</span>
+<span class="fc" id="L22">    this.users = users;</span>
+<span class="fc" id="L23">    this.products = products;</span>
+<span class="fc" id="L24">  }</span>
+
+  public SaleResponse create(CreateSaleRequest request) {
+<span class="fc" id="L27">    Sale sale = new Sale();</span>
+<span class="fc" id="L28">    apply(sale, request.getUserId(), request.getItems());</span>
+<span class="fc" id="L29">    return response(sales.save(sale));</span>
+  }
+
+  public SaleResponse getById(Long id) {
+<span class="fc" id="L33">    return response(sales.findById(id).orElseThrow(() -&gt; new NotFoundException(&quot;Sale not found&quot;)));</span>
+  }
+
+  public List&lt;SaleResponse&gt; getAll() {
+<span class="fc" id="L37">    return sales.findAllByOrderByCreatedAtDesc().stream().map(this::response).toList();</span>
+  }
+
+  public SaleResponse update(Long id, UpdateSaleRequest request) {
+<span class="nc" id="L41">    Sale sale = sales.findById(id).orElseThrow(() -&gt; new NotFoundException(&quot;Sale not found&quot;));</span>
+<span class="nc" id="L42">    sale.getSaleItems().clear();</span>
+<span class="nc" id="L43">    apply(sale, request.getUserId(), request.getItems());</span>
+<span class="nc" id="L44">    return response(sales.save(sale));</span>
+  }
+
+  public void delete(Long id) {
+<span class="nc bnc" id="L48" title="All 2 branches missed.">    if (!sales.existsById(id)) throw new NotFoundException(&quot;Sale not found&quot;);</span>
+<span class="nc" id="L49">    sales.deleteById(id);</span>
+<span class="nc" id="L50">  }</span>
+
+  private void apply(Sale sale, Long userId, List&lt;CreateSaleItemRequest&gt; requests) {
+<span class="fc" id="L53">    sale.setUser(users.findById(userId).orElseThrow(() -&gt; new NotFoundException(&quot;User not found&quot;)));</span>
+<span class="fc" id="L54">    BigDecimal total = BigDecimal.ZERO;</span>
+<span class="fc bfc" id="L55" title="All 2 branches covered.">    for (CreateSaleItemRequest request : requests) {</span>
+<span class="fc" id="L56">      Product product =</span>
+          products
+<span class="fc" id="L58">              .findById(request.getProductId())</span>
+<span class="pc" id="L59">              .orElseThrow(() -&gt; new NotFoundException(&quot;Product not found&quot;));</span>
+<span class="fc" id="L60">      SaleItem item = new SaleItem();</span>
+<span class="fc" id="L61">      item.setSale(sale);</span>
+<span class="fc" id="L62">      item.setProduct(product);</span>
+<span class="fc" id="L63">      item.setQuantity(request.getQuantity());</span>
+<span class="fc" id="L64">      item.setUnitPrice(product.getPrice());</span>
+<span class="fc" id="L65">      sale.getSaleItems().add(item);</span>
+<span class="fc" id="L66">      total = total.add(product.getPrice().multiply(BigDecimal.valueOf(request.getQuantity())));</span>
+<span class="fc" id="L67">    }</span>
+<span class="fc" id="L68">    sale.setTotalPrice(total);</span>
+<span class="fc" id="L69">  }</span>
+
+  private SaleResponse response(Sale sale) {
+<span class="fc" id="L72">    SaleResponse r = new SaleResponse();</span>
+<span class="fc" id="L73">    r.setId(sale.getId());</span>
+<span class="pc bpc" id="L74" title="1 of 2 branches missed.">    r.setUserId(sale.getUser() == null ? null : sale.getUser().getId());</span>
+<span class="fc" id="L75">    r.setTotalPrice(sale.getTotalPrice());</span>
+<span class="fc" id="L76">    r.setCreatedAt(sale.getCreatedAt());</span>
+<span class="fc" id="L77">    r.setUpdatedAt(sale.getUpdatedAt());</span>
+<span class="fc" id="L78">    r.setItems(</span>
+<span class="fc" id="L79">        sale.getSaleItems().stream()</span>
+<span class="fc" id="L80">            .map(</span>
+                i -&gt; {
+<span class="fc" id="L82">                  SaleItemResponse x = new SaleItemResponse();</span>
+<span class="fc" id="L83">                  x.setId(i.getId());</span>
+<span class="pc bpc" id="L84" title="1 of 2 branches missed.">                  x.setProductId(i.getProduct() == null ? null : i.getProduct().getId());</span>
+<span class="fc" id="L85">                  x.setQuantity(i.getQuantity());</span>
+<span class="fc" id="L86">                  x.setUnitPrice(i.getUnitPrice());</span>
+<span class="fc" id="L87">                  x.setLineTotal(i.getUnitPrice().multiply(BigDecimal.valueOf(i.getQuantity())));</span>
+<span class="fc" id="L88">                  return x;</span>
+                })
+<span class="fc" id="L90">            .toList());</span>
+<span class="fc" id="L91">    return r;</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

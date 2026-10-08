@@ -16,11 +16,14 @@ import org.springframework.stereotype.Service;
 public class JwtService {
   private final JwtEncoder jwtEncoder;
   private final long expirationSeconds;
+  private final com.shopwise.app.repository.UserRepository users;
 
   public JwtService(
       JwtEncoder jwtEncoder,
+      com.shopwise.app.repository.UserRepository users,
       @Value("${app.security.jwt.expiration-seconds:3600}") long expirationSeconds) {
     this.jwtEncoder = jwtEncoder;
+    this.users = users;
     this.expirationSeconds = expirationSeconds;
   }
 
@@ -39,6 +42,8 @@ public class JwtService {
             .issuedAt(issuedAt)
             .expiresAt(issuedAt.plus(expirationSeconds, ChronoUnit.SECONDS))
             .claim("role", role)
+            .claim("accountVersion", users.findByEmail(authentication.getName()).orElseThrow()
+                .getUpdatedAt().toString())
             .build();
 
     return jwtEncoder
